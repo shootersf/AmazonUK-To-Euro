@@ -2,12 +2,15 @@
     "manifest_version": 2,
     "name": "Amazon UK To Euro",
     "version": "0.1",
+    "permissions": [
+        "storage"
+    ],
     "content_scripts": [
         {
             "matches": [
                 "*://*.amazon.co.uk/*"
             ],
-            "js": ["content.js"]
+            "js": ["jquery-3.3.1.min.js","content.js"]
         }
     ]
 }
