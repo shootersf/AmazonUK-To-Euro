@@ -1,12 +1,22 @@
 const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
 let rate;
-
+let timeoutHandle;
 const doc = document.body;
 const config = { attributes: true, childList: true, characterData: true, subtree: true}
-let observer = new MutationObserver(function(m) {
-    console.log("fixing mutation");
-    init();
-})
+const observer = new MutationObserver(function(m) {
+    console.log("mutating");
+    if (m[0].target != document.getElementById("ddmFastestCountdown"))
+    {
+        clearTimeout(timeoutHandle);
+        timeoutHandle = setTimeout(() => {
+            console.log("fixing mutation");
+            init();
+        }, 1000);
+    }
+    else
+    console.log('ignoring counter');
+    
+});
 
 // Start by checking our date in storage. If it exists and is less than an hour ago pull stored rate else get new rate from api
 chrome.storage.sync.get(["date"], function(lastUpdated) {
