@@ -1,9 +1,11 @@
 const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
 let rate;
 let timeoutHandle;  //used for recalling init after the webpage mutates.
-const doc = document.body;
+const documentBody = document.body;
 const config = { attributes: true, childList: true, characterData: true, subtree: true}
 
+//create a mutation observer to watch for changes on the site. Amazon loads in new content at varies points.
+//observer will call init() when changes stop.
 const observer = new MutationObserver(function(m) {
     //ignore "ddmFastestCountdown" as it updates every second on the page
     if (m[0].target != document.getElementById("ddmFastestCountdown"))
@@ -11,11 +13,12 @@ const observer = new MutationObserver(function(m) {
         //reset the script timer so it only reruns when the page is no longer modifying.
         clearTimeout(timeoutHandle);
         timeoutHandle = setTimeout(() => {
-            console.log("fixing mutation");
             init();
         }, 1000);
     }
 });
+
+//BEGINNING OF SCRIPT
 
 // Start by checking our date in storage. If it exists and is less than an hour old pull stored rate else get new rate from api
 chrome.storage.sync.get(["date"], function(lastUpdated) {
@@ -66,22 +69,33 @@ function init() {
 }
 
 function changeLines(lines) {
-    //filter out lines that don't match /^£\d+[.]\d{2}$/ (pounds and pence only)
-    const search = /^£\d+[.]\d{2}$/;
+    //search for pounds and filter out any script elements 
+    let search = /£\d+[.]\d{2}/;
     lines = lines.filter(line => search.test(line.textContent.trim()));
-    console.log(lines);
+    lines = lines.filter(line => line.tagName != "SCRIPT");
+
     //update price on all remaining lines
     //stop observer so it doesn't fire while we change the DOM
     observer.disconnect();
-    lines.forEach(element => {
-        //drops £ symbol
-        let price = Number(element.textContent.trim().substring(1));
-        //converts to euros
-        price = (price * rate).toFixed(2);
-        price = "€" + price;
-        //update element
-        element.textContent = price;
+
+    //change search to global
+    search = /£\d+[.]\d{2}/g;
+
+    lines.forEach(line => {
+        //get initial pounds and keep for replace.
+        const initialPounds = line.textContent.match(search);
+        //make a copy to work on
+        let newPrices = initialPounds;
+        //drop Pound symbol from string and convert to number
+        newPrices = newPrices.map(price => Number(price.substring(1)));
+        //convert to Euros and back to string
+        newPrices = newPrices.map(price => "~€" + (price * rate).toFixed(2));
+        //loop through and replace
+        for (let i = 0; i < initialPounds.length; i++)
+        {
+            line.textContent = line.textContent.replace(initialPounds[i],newPrices[i]);
+        }
     });
     //turn observer back on
-    observer.observe(doc, config);
+    observer.observe(documentBody, config);
 }
