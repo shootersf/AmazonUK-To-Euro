@@ -61,6 +61,10 @@ function getNewRate() {
 // }
 
 function init() {
+    if (!settings.bias)
+    {
+        settings.bias = 0;
+    }
     //Get initial elements that contain pound symbol
     const poundElementsXpath = document.evaluate('//*[contains(text(), "£")]', document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
     //convert to an array
@@ -94,7 +98,7 @@ function changeLines(lines) {
         //drop Pound symbol from string and convert to number
         newPrices = newPrices.map(price => Number(price.substring(1)));
         //convert to Euros and back to string
-        newPrices = newPrices.map(price => "~€" + (price * settings.rate).toFixed(2));
+        newPrices = newPrices.map(price => "~€" + (price * (settings.rate + settings.bias/100)).toFixed(2));
         //loop through and replace
         for (let i = 0; i < initialPounds.length; i++)
         {

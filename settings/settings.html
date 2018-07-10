@@ -9,10 +9,11 @@
 <body>
     <h1>Amazon UK To Euro Settings</h1>
     <p>Current Exchange Rate:<br>&pound;1 = &euro;<span id="rate-in-euro"></span></p>
-    <label for="bias-number">You can enter amount in cents to adjust any rates gotten:</label>
+    <label for="bias-number">You can enter amount in cents to adjust any rates gotten: (you will need to refresh any open amazon pages)</label>
     <input type="number" name="bias-number" id="bias-number" placeholder="0">
-    <button>Apply</button>
+    <button id="apply-bias">Apply</button>
     <p>Current Biased Exchange Rate:<br>&pound;1 = &euro;<span id="biased-rate-in-euro"></span></p>
+    <p>Source code for this project can be found on <a href="https://github.com/shootersf/AmazonUK-To-Euro">my github.</a></p>
     <footer><p>Extension created by Simon Farrelly.<br>If you find it useful you can always leave a tip :)</p>
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank">
             <input type="hidden" name="cmd" value="_s-xclick">

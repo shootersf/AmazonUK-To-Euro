@@ -1,5 +1,15 @@
 let settings;
 
+document.getElementById("apply-bias").onclick = function() {
+    const numberInputed = document.getElementById("bias-number").value;
+    if (numberInputed != "")
+    {
+        settings.bias = Number(numberInputed);
+        Storage.set(settings, function () {console.log("Updated bias to " + settings.bias)});
+        init();
+    }
+};
+
 Storage.get(function(result) {
     settings = result;
     init();
@@ -11,7 +21,7 @@ function init() {
     {
         settings.bias = 0;
     }
-    document.getElementById("bias-number").placholder = settings.bias;
+    document.getElementById("bias-number").placeholder = settings.bias;
     document.getElementById("biased-rate-in-euro").textContent = settings.rate + settings.bias/100;
     updateTipButton();
 }
