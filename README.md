@@ -1,2 +1,8 @@
 # AmazonUK-To-Euro
-This chrome extension will convert the price shown on a product on Amazon.co.uk to euros using Fixer's exchange rate API.
+This extension converts most &pound; prices on amazon.co.uk to &euro;s. It does not account for differences in VAT
+so the conversion may be a little off. You can click on the extension's icon and add a bias to the exchange rate
+to artifically make the pound stronger to help with this. 
+
+## Installing
+
+You can get the extension through the chrome store.
