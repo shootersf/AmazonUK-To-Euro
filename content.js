@@ -1,8 +1,8 @@
 const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
-let rate;
 let timeoutHandle;  //used for recalling init after the webpage mutates.
 const documentBody = document.body;
-const config = { attributes: true, childList: true, characterData: true, subtree: true}
+const observerConfig = { attributes: true, childList: true, characterData: true, subtree: true}
+let settings = {}; //will load and be saved to storage. Contains date of last updated rate, rate and user bias settings.
 
 //create a mutation observer to watch for changes on the site. Amazon loads in new content at varies points.
 //observer will call init() when changes stop.
@@ -21,39 +21,44 @@ const observer = new MutationObserver(function(m) {
 //BEGINNING OF SCRIPT
 
 // Start by checking our date in storage. If it exists and is less than an hour old pull stored rate else get new rate from api
-chrome.storage.sync.get(["date"], function(lastUpdated) {
-    console.log(lastUpdated);
-    if ($.isEmptyObject(lastUpdated) || (Date.now() - lastUpdated.date > ONE_HOUR))
+//chrome.storage.sync.get(["amazonUKtoEuro"], function(result) {
+Storage.get(function (result) {
+    settings = result;
+    console.log(result);
+    if ($.isEmptyObject(result) || (Date.now() - settings.date > ONE_HOUR))
     {
         //Get a new rate
         getNewRate();
     }
     else 
     {
-        //Load current rate
-        loadCurrentRate()
+        //start
+        init();
     }
 });
 
 //Gets a new rate and stores it with the current time. Then starts converting the page to euros
 function getNewRate() {
     $.getJSON('https://free.currencyconverterapi.com/api/v5/convert?q=GBP_EUR&compact=ultra', function(data){
-        rate = data.GBP_EUR;
         const now = Date.now();
-        chrome.storage.sync.set({date: now}, function() {console.log("Date set to " + now);});
-        chrome.storage.sync.set({saved_rate: rate}, function() {console.log("Saved_Rate set to " + rate)});
-        console.log ("NEW RATE = " + rate);
+
+        settings.date = now;
+        settings.rate = data.GBP_EUR;
+
+        //chrome.storage.sync.set({amazonUKtoEuro : settings}, function() {console.log("Date set to " + now);});
+        Storage.set(settings, function() {console.log("Date set to " + now);});
+        console.log ("NEW RATE = " + settings.rate);
         init();
     });
 }
 
-function loadCurrentRate() {
-    chrome.storage.sync.get(["saved_rate"], function(savedRate) {
-        rate = savedRate.saved_rate;
-        console.log(rate);
-        init();
-    })
-}
+// function loadCurrentRate() {
+//     chrome.storage.sync.get(["amazonUKtoEuro"], function(storedSettings) {
+//         settings = storedSettings.amazonUKtoEuro;
+//         console.log(settings);
+//         init();
+//     })
+// }
 
 function init() {
     //Get initial elements that contain pound symbol
@@ -71,7 +76,7 @@ function init() {
 function changeLines(lines) {
     //search for pounds and filter out any script elements 
     let search = /£\d+[.]\d{2}/;
-    lines = lines.filter(line => search.test(line.textContent.trim()));
+    lines = lines.filter(line => search.test(line.textContent));
     lines = lines.filter(line => line.tagName != "SCRIPT");
 
     //update price on all remaining lines
@@ -89,7 +94,7 @@ function changeLines(lines) {
         //drop Pound symbol from string and convert to number
         newPrices = newPrices.map(price => Number(price.substring(1)));
         //convert to Euros and back to string
-        newPrices = newPrices.map(price => "~€" + (price * rate).toFixed(2));
+        newPrices = newPrices.map(price => "~€" + (price * settings.rate).toFixed(2));
         //loop through and replace
         for (let i = 0; i < initialPounds.length; i++)
         {
@@ -97,5 +102,5 @@ function changeLines(lines) {
         }
     });
     //turn observer back on
-    observer.observe(documentBody, config);
+    observer.observe(documentBody, observerConfig);
 }
