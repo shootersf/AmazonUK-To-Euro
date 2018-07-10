@@ -5,4 +5,4 @@ to artificially make the pound stronger to help with this.
 
 ## Installing
 
-You can get the extension through the [https://chrome.google.com/webstore/detail/amazon-uk-to-euro/bakojiafihbgfbdgimbfaiieadildbaf](chrome store.)
+You can get the extension through the [chrome store](https://chrome.google.com/webstore/detail/amazon-uk-to-euro/bakojiafihbgfbdgimbfaiieadildbaf)
