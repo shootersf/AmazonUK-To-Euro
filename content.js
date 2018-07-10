@@ -1,27 +1,26 @@
 const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
 let rate;
-let timeoutHandle;
+let timeoutHandle;  //used for recalling init after the webpage mutates.
 const doc = document.body;
 const config = { attributes: true, childList: true, characterData: true, subtree: true}
+
 const observer = new MutationObserver(function(m) {
-    console.log("mutating");
+    //ignore "ddmFastestCountdown" as it updates every second on the page
     if (m[0].target != document.getElementById("ddmFastestCountdown"))
     {
+        //reset the script timer so it only reruns when the page is no longer modifying.
         clearTimeout(timeoutHandle);
         timeoutHandle = setTimeout(() => {
             console.log("fixing mutation");
             init();
         }, 1000);
     }
-    else
-    console.log('ignoring counter');
-    
 });
 
-// Start by checking our date in storage. If it exists and is less than an hour ago pull stored rate else get new rate from api
+// Start by checking our date in storage. If it exists and is less than an hour old pull stored rate else get new rate from api
 chrome.storage.sync.get(["date"], function(lastUpdated) {
     console.log(lastUpdated);
-    if ($.isEmptyObject(lastUpdated) || (Date.now() - lastUpdated > ONE_HOUR))
+    if ($.isEmptyObject(lastUpdated) || (Date.now() - lastUpdated.date > ONE_HOUR))
     {
         //Get a new rate
         getNewRate();
@@ -40,6 +39,7 @@ function getNewRate() {
         const now = Date.now();
         chrome.storage.sync.set({date: now}, function() {console.log("Date set to " + now);});
         chrome.storage.sync.set({saved_rate: rate}, function() {console.log("Saved_Rate set to " + rate)});
+        console.log ("NEW RATE = " + rate);
         init();
     });
 }
@@ -53,32 +53,35 @@ function loadCurrentRate() {
 }
 
 function init() {
-    observer.disconnect();
+    //Get initial elements that contain pound symbol
+    const poundElementsXpath = document.evaluate('//*[contains(text(), "£")]', document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
+    //convert to an array
+    const poundElements = [];
+    for (let i =0; i < poundElementsXpath.snapshotLength; i++)
+    {
+        poundElements.push(poundElementsXpath.snapshotItem(i));
+    }
+    changeLines(poundElements);
 
-    let poundElements = document.evaluate('//*[contains(text(), "£")]', document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
-    poundElements = getPoundOnlyElements(poundElements);
-    poundElements.forEach(element => {
+}
+
+function changeLines(lines) {
+    //filter out lines that don't match /^£\d+[.]\d{2}$/ (pounds and pence only)
+    const search = /^£\d+[.]\d{2}$/;
+    lines = lines.filter(line => search.test(line.textContent.trim()));
+    console.log(lines);
+    //update price on all remaining lines
+    //stop observer so it doesn't fire while we change the DOM
+    observer.disconnect();
+    lines.forEach(element => {
+        //drops £ symbol
         let price = Number(element.textContent.trim().substring(1));
+        //converts to euros
         price = (price * rate).toFixed(2);
         price = "€" + price;
+        //update element
         element.textContent = price;
     });
-
-    setTimeout(() => {observer.observe(doc, config);}, 300);
+    //turn observer back on
+    observer.observe(doc, config);
 }
-
-function getPoundOnlyElements(elements) {
-    const poundOnlyArr = [];
-    const search = /^£\d+[.]\d{2}$/;
-    //const search = /^£/;
-    for (let i =0; i < elements.snapshotLength; i++)
-    {
-        if (search.test(elements.snapshotItem(i).innerHTML.trim()))
-        {
-            poundOnlyArr.push(elements.snapshotItem(i));
-            console.log(elements.snapshotItem(i).innerHTML)
-        }
-    }
-    return poundOnlyArr;
-}
-
