@@ -1,4 +1,4 @@
-const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
+
 let timeoutHandle;  //used for recalling init after the webpage mutates.
 const documentBody = document.body;
 const observerConfig = { attributes: true, childList: true, characterData: true, subtree: true}
@@ -20,51 +20,13 @@ const observer = new MutationObserver(function(m) {
 
 //BEGINNING OF SCRIPT
 
-// Start by checking our date in storage. If it exists and is less than an hour old pull stored rate else get new rate from api
-//chrome.storage.sync.get(["amazonUKtoEuro"], function(result) {
+// Start by getting our rate out of storage
 Storage.get(function (result) {
     settings = result;
-    console.log(result);
-    if ($.isEmptyObject(result) || (Date.now() - settings.date > ONE_HOUR))
-    {
-        //Get a new rate
-        getNewRate();
-    }
-    else 
-    {
-        //start
-        init();
-    }
+    //start
+    init();
 });
-
-//Gets a new rate and stores it with the current time. Then starts converting the page to euros
-function getNewRate() {
-    $.getJSON('https://free.currencyconverterapi.com/api/v5/convert?q=GBP_EUR&compact=ultra', function(data){
-        const now = Date.now();
-
-        settings.date = now;
-        settings.rate = data.GBP_EUR;
-
-        //chrome.storage.sync.set({amazonUKtoEuro : settings}, function() {console.log("Date set to " + now);});
-        Storage.set(settings, function() {console.log("Date set to " + now);});
-        console.log ("NEW RATE = " + settings.rate);
-        init();
-    });
-}
-
-// function loadCurrentRate() {
-//     chrome.storage.sync.get(["amazonUKtoEuro"], function(storedSettings) {
-//         settings = storedSettings.amazonUKtoEuro;
-//         console.log(settings);
-//         init();
-//     })
-// }
-
 function init() {
-    if (!settings.bias)
-    {
-        settings.bias = 0;
-    }
     //Get initial elements that contain pound symbol
     const poundElementsXpath = document.evaluate('//*[contains(text(), "£")]', document.body, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,null);
     //convert to an array
