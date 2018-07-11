@@ -1,5 +1,5 @@
 const ONE_HOUR = 3600000;  //in ms. Lenght of time to keep rate cached
-const debug = false;
+const debug = false;  //used to force new rate if testing
 
 let Storage = {
     get: function(callback) {
@@ -8,15 +8,13 @@ let Storage = {
             if (!$.isEmptyObject(result) && Date.now() - result.amazonUKtoEuro.date < ONE_HOUR && debug === false)
             {
                 callback(result.amazonUKtoEuro);
-                console.log("recalled settings: ");
-                console.log(result.amazonUKtoEuro);
             }  
             else
             {
                 //get new rate and send that
                 $.getJSON('https://free.currencyconverterapi.com/api/v5/convert?q=GBP_EUR&compact=ultra', function(data){
                 const now = Date.now();
-                //set the dat to now and the new rate to JSON
+                //set the date to now and the new rate to JSON data
                 let settings = {};
                 settings.date = now;
                 settings.rate = data.GBP_EUR;
@@ -27,7 +25,6 @@ let Storage = {
                     {settings.bias = 0;}
                 //finally set the settings and return them to the callback
                 Storage.set(settings, function(){console.log("settings Updated")});
-                console.log(settings);
                 callback(settings);
                 });
             }
