@@ -31,7 +31,9 @@ document.getElementById("apply-bias").onclick = function() {
     if (numberInputed != "")
     {
         settings.bias = Number(numberInputed);
-        Storage.set(settings, function () {console.log("Updated bias to " + settings.bias)});
-        updateBiasDisplay();
+        Storage.set(settings, function () {
+            console.log("Updated bias to " + settings.bias);
+            updateBiasDisplay();
+        });
     }
 };
