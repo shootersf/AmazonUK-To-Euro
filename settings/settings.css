@@ -1,0 +1,43 @@
+body {
+    font-family: 'Libre Franklin', sans-serif;
+}
+
+h1 {
+    font-size: 1.2rem;
+    color: #009b72;
+}
+
+p {
+    padding: .4rem 0;
+}
+
+.exchange-text {
+    font-size: 0.9rem;
+}
+
+label {
+    padding-bottom: .4rem;
+}
+
+button {
+    display: block;
+    margin: .5rem auto;
+    padding: .2rem;
+    background: none;
+    border: 1px solid #009b72;
+    color: #009b72;
+    cursor: pointer;
+}
+
+button:focus {
+    outline: 0;
+}
+
+button:hover {
+    background: #009b72;
+    color: white;
+}
+
+.tipjar {
+    text-align: center;
+}
