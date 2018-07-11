@@ -26,6 +26,16 @@ function updateBiasDisplay() {
     document.getElementById("biased-rate-in-euro").textContent = settings.rate + settings.bias/100;
 }
 
+function reloadAmazonTabs() {
+    let querying = chrome.tabs.query({url: "*://*.amazon.co.uk/*"},reloadTabs);
+}
+
+function reloadTabs(tabs) {
+    for (let tab of tabs)
+    {
+        chrome.tabs.reload(tab.id);
+    }
+}
 document.getElementById("apply-bias").onclick = function() {
     const numberInputed = document.getElementById("bias-number").value;
     if (numberInputed != "")
@@ -35,5 +45,7 @@ document.getElementById("apply-bias").onclick = function() {
             console.log("Updated bias to " + settings.bias);
             updateBiasDisplay();
         });
+        //auto refresh for new prices
+        reloadAmazonTabs();
     }
 };

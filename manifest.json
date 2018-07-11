@@ -6,7 +6,8 @@
         "images/*.jpg"
     ],
     "permissions": [
-        "storage"
+        "storage",
+        "tabs"
     ],
     "content_scripts": [
         {
