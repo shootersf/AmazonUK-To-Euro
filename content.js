@@ -40,10 +40,11 @@ function init() {
 }
 
 function changeLines(lines) {
-    //search for pounds and filter out any script elements 
+    //search for pounds and filter out any script elements and our created tooltips
     let search = /£\d+[.]\d{2}/;
     lines = lines.filter(line => search.test(line.textContent));
     lines = lines.filter(line => line.tagName != "SCRIPT");
+    lines = lines.filter(line => line.className != "uk2euro-tooltip");
 
     //update price on all remaining lines
     //stop observer so it doesn't fire while we change the DOM
@@ -55,18 +56,34 @@ function changeLines(lines) {
     lines.forEach(line => {
         //get initial pounds and keep for replace.
         const initialPounds = line.textContent.match(search);
-        //make a copy to work on
+        //make a copy to work on (this could have been buggy except I reassing below phew-refactor)
         let newPrices = initialPounds;
         //drop Pound symbol from string and convert to number
         newPrices = newPrices.map(price => Number(price.substring(1)));
         //convert to Euros and back to string
         newPrices = newPrices.map(price => "~€" + (price * (settings.rate + settings.bias/100)).toFixed(2));
-        //loop through and replace
+        //loop through and replace. Also prepare HTML for ease of access to add toolip
         for (let i = 0; i < initialPounds.length; i++)
         {
-            line.textContent = line.textContent.replace(initialPounds[i],newPrices[i]);
+            
+            let newHTMLinjection = `<span class="uk2euro-price" data-ukprice="${initialPounds[i]}">${newPrices[i]}<span class="uk2euro-tooltip"></span></span>`
+            line.innerHTML = line.innerHTML.replace(initialPounds[i],newHTMLinjection);
         }
     });
+    //add tooltips
+    addTooltips();
+
     //turn observer back on
     observer.observe(documentBody, observerConfig);
+}
+
+function addTooltips() {
+    const allUpdates = document.getElementsByClassName("uk2euro-price");
+
+    for (let i = 0; i < allUpdates.length; i++)
+    {
+        let tooltip = allUpdates[i].querySelector(".uk2euro-tooltip");
+        tooltip.textContent = allUpdates[i].dataset.ukprice;
+    }
+
 }
