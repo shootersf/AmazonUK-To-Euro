@@ -1,9 +1,18 @@
 let settings;
+let setting_debug = false;
 
-Storage.get(function(result) {
-    settings = result;
-    init();
-})
+if (setting_debug) {
+    chrome.storage.sync.remove(["amazonUKtoEuro"],function() {
+        console.log("removed");
+    });
+}
+else
+{
+    Storage.get(function(result) {
+        settings = result;
+        init();
+    })
+}
 
 function init() {
     document.getElementById("rate-in-euro").textContent = settings.rate;

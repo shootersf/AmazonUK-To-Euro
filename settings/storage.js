@@ -19,7 +19,7 @@ let Storage = {
                 settings.date = now;
                 settings.rate = data.GBP_EUR;
                 //check for a bias and add it, if not default to 0
-                if (result.amazonUKtoEuro.bias)
+                if (result.amazonUKtoEuro && result.amazonUKtoEuro.bias)
                     {settings.bias = result.amazonUKtoEuro.bias;}
                 else
                     {settings.bias = 0;}
