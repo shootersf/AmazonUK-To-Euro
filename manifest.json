@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Amazon UK To Euro",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "web_accessible_resources": [
         "images/*.jpg"
     ],
@@ -14,7 +14,8 @@
             "matches": [
                 "*://*.amazon.co.uk/*"
             ],
-            "js": ["jquery-3.3.1.min.js","settings/storage.js","content.js"]
+            "js": ["jquery-3.3.1.min.js","settings/storage.js","content.js"],
+            "css": ["content.css"]
         }
     ],
     "browser_action": {
