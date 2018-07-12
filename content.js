@@ -85,5 +85,27 @@ function addTooltips() {
         let tooltip = allUpdates[i].querySelector(".uk2euro-tooltip");
         tooltip.textContent = allUpdates[i].dataset.ukprice;
     }
+}
+let firing = false;
+document.addEventListener("keydown", toggleCurrencies);
+document.addEventListener("keyup", (event) => {if (event.key === "?") firing = false;});
 
+function toggleCurrencies(event) {
+    console.log(event.key);
+    if (event.key === "?" && !firing)
+    {
+        firing = true;
+        let euros = document.getElementsByClassName("uk2euro-price");
+        let pounds = document.getElementsByClassName("uk2euro-tooltip");
+
+        for (let i = 0; i < euros.length; i++)
+        {
+            euros[i].classList.toggle("override-hide");
+        }
+        for (let i = 0; i < pounds.length; i++)
+        {
+            pounds[i].classList.toggle("override-show");
+        }
+    }
+    
 }
