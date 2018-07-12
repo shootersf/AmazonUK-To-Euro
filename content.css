@@ -1,0 +1,29 @@
+.uk2euro-price {
+    position: relative;
+    padding: 5px;
+}
+
+.uk2euro-tooltip {
+    visibility: hidden;
+    position: absolute;
+    top:0;
+    left: 5px;
+    padding: 5px;
+}
+
+.uk2euro-price:hover .uk2euro-tooltip {
+    visibility: visible;
+}
+
+.uk2euro-price:hover
+{
+    visibility: hidden;
+}
+
+.override-show {
+    visibility: visible !important;
+}
+
+.override-hide {
+    visibility: hidden !important;
+}
